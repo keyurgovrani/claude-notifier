@@ -26,6 +26,13 @@ git clone https://github.com/keyurgovrani/claude-notifier ~/.claude/claude-notif
 bash ~/.claude/claude-notifier/install.sh
 ```
 
+Without git, use the zip from the latest release:
+
+```bash
+curl -fsSL -o /tmp/claude-notifier.zip https://github.com/keyurgovrani/claude-notifier/releases/latest/download/claude-notifier.zip
+unzip -o /tmp/claude-notifier.zip -d ~/.claude && bash ~/.claude/claude-notifier/install.sh
+```
+
 The first time, macOS may ask you to allow notifications from Claude Notifier.
 Click **Allow**. If you see neither the prompt nor the test notification, turn
 it on in System Settings → Notifications → Claude Notifier.
