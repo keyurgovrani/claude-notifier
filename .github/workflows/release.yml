@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to release
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # The claude-notifier/ prefix lets `unzip -d ~/.claude` land in ~/.claude/claude-notifier.
+      - run: git archive --format=zip --prefix=claude-notifier/ -o claude-notifier.zip "$TAG"
+      - run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" claude-notifier.zip --clobber
+            gh release edit "$TAG" --draft=false --latest
+          else
+            gh release create "$TAG" claude-notifier.zip --title "$TAG" --generate-notes --latest
+          fi
