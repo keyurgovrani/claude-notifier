@@ -120,7 +120,7 @@ ${orange}${bold}✦ Claude Notifier installed.${reset}
   ${orange}•${reset} Hook:     ~/.claude/hooks/claude-notify.sh ${dim}(edit the SOUND vars to change sounds)${reset}
   ${orange}•${reset} Settings: ~/.claude/settings.json updated ${dim}(backup at .bak)${reset}
 
-${dim}Re-run ${bold}bash ~/.claude/claude-notifier/install.sh${reset}${dim} after editing files in ~/.claude/claude-notifier/.${reset}
+${dim}Re-run ${bold}bash ${SCRIPT_DIR/#$HOME/~}/install.sh${reset}${dim} after editing files in ${SCRIPT_DIR/#$HOME/~}/.${reset}
 
 SUMMARY
 }

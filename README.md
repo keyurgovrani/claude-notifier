@@ -1,41 +1,59 @@
 # Claude Notifier
 
-macOS notifications for Claude Code — fires when a turn ends and when Claude
-needs your input.
+macOS notifications for Claude Code. You get one when a turn ends and one when
+Claude needs your input, each with the Claude icon. Clicking a notification
+brings back the terminal the session runs in.
 
 ## Install
 
+### Let your agent do it
+
+Paste this into Claude Code:
+
+```text
+Install Claude Notifier for me from https://github.com/keyurgovrani/claude-notifier.
+Clone it into ~/.claude/claude-notifier, or run `git pull` there if it already exists.
+Then run `bash ~/.claude/claude-notifier/install.sh`.
+The installer sends a "Claude Notifier installed ✓" test notification.
+Ask me whether I saw it. If I did not, walk me through
+System Settings → Notifications → Claude Notifier to turn on Allow Notifications.
+```
+
+### Or do it yourself
+
 ```bash
+git clone https://github.com/keyurgovrani/claude-notifier ~/.claude/claude-notifier
 bash ~/.claude/claude-notifier/install.sh
 ```
 
-macOS prompts you to grant notification permission to "Claude Notifier" the
-first time — click **Allow**.
+The first time, macOS may ask you to allow notifications from Claude Notifier.
+Click **Allow**. If you see neither the prompt nor the test notification, turn
+it on in System Settings → Notifications → Claude Notifier.
 
 ## What you get
 
 - **Turn-end notification** (`Stop` hook)
   - Title: `Claude · <project>`
-  - Subtitle: `<branch>` or `<branch> ● <N> files` if there are uncommitted changes
-  - Message: last assistant reply (truncated)
-  - Sound: `Glass` on success, `Basso` if the last reply mentions error/failed/blocked
-- **AFK notification** (`Notification` hook)
-  - Title: `Claude needs you · <project>` (tool name appended for permission prompts)
-  - Sound: `Hero`; bypasses Do Not Disturb
-- Clicking either focuses the terminal hosting your Claude session — detected at
-  click time by walking the process tree. Works with any macOS terminal.
+  - Subtitle: `<branch>`, or `<branch> ● <N> files` when there are uncommitted changes
+  - Message: the last assistant reply, truncated
+  - Sound: `Glass`, or `Basso` when the last reply mentions error, failed or blocked
+- **Needs-input notification** (`Notification` hook)
+  - Title: `Claude needs you · <project>`, plus the tool name for permission prompts
+  - Sound: `Hero`, and it shows even in Do Not Disturb
+- Clicking either one focuses the terminal hosting your Claude session. It finds
+  that terminal when you click, so any macOS terminal works.
 
 ## What gets installed
 
 | Location | Purpose |
 | --- | --- |
-| `~/Applications/ClaudeNotifier.app` | Rebranded `terminal-notifier` with the Claude icon. Bundle id `com.keyur.claudenotifier`. |
-| `~/.claude/hooks/claude-notify.sh` | The hook script — runs in `stop` and `afk` modes. |
-| `~/.claude/settings.json` | One entry added under `hooks.Stop` and `hooks.Notification`. Previous file backed up to `.bak`. |
+| `~/Applications/ClaudeNotifier.app` | A copy of `terminal-notifier` rebranded with the Claude icon. Bundle id `com.keyur.claudenotifier`. |
+| `~/.claude/hooks/claude-notify.sh` | The hook script. It runs in `stop` and `afk` modes. |
+| `~/.claude/settings.json` | One entry under `hooks.Stop` and one under `hooks.Notification`. The previous file is kept as `settings.json.bak`. |
 
-## Configuration
+## Sounds
 
-Sounds are variables at the top of `~/.claude/hooks/claude-notify.sh`:
+The sounds are variables at the top of `~/.claude/hooks/claude-notify.sh`:
 
 ```bash
 STOP_SOUND="Glass"
@@ -43,24 +61,31 @@ STOP_ERROR_SOUND="Basso"
 AFK_SOUND="Hero"
 ```
 
-Edit them — the change applies on the next notification, no reload or
-re-install. Any file under `/System/Library/Sounds/` works (drop the `.aiff`);
-run `ls /System/Library/Sounds/` to list them.
+Edits apply on the next notification with no reinstall. Any file in
+`/System/Library/Sounds/` works; drop the `.aiff` from the name.
 
-## When to re-run
+## Update
 
-Re-run `bash ~/.claude/claude-notifier/install.sh` after editing files in
-`~/.claude/claude-notifier/`. It is idempotent — re-running migrates older
-installs and never duplicates entries.
+```bash
+git -C ~/.claude/claude-notifier pull
+bash ~/.claude/claude-notifier/install.sh
+```
+
+The installer is safe to re-run. It never duplicates settings entries. It also
+replaces `~/.claude/hooks/claude-notify.sh`, so re-apply any sound changes afterwards.
 
 ## Troubleshooting
 
-- **Icon looks generic** — log out and back in once; macOS caches app icons.
-- **No notification fires** — System Settings → Notifications → "Claude Notifier"
-  → ensure **Allow Notifications** is on. If it is not listed, re-run install.
-- **Click does nothing** — restart your Claude session from the terminal directly.
-- **Hook never triggers** — check `~/.claude/settings.json` has entries under
-  `hooks.Stop` and `hooks.Notification`; re-run install if they are missing.
+- **Icon looks generic.** Log out and back in once. macOS caches app icons.
+- **No notification appears.** Open System Settings → Notifications → Claude
+  Notifier and turn on Allow Notifications. If it is not listed, re-run the installer.
+- **Turns end about 10 minutes late.** The notifier is stuck waiting on macOS,
+  and Claude Code kills the hook at its 10-minute limit. This happens when a second
+  copy of `ClaudeNotifier.app` has existed somewhere else on the Mac. Re-run the
+  installer to rebuild the app in place.
+- **Clicking does nothing.** Start your Claude session directly from the terminal.
+- **Hooks never run.** Check that `~/.claude/settings.json` has the entries under
+  `hooks.Stop` and `hooks.Notification`, and re-run the installer if they are missing.
 
 ## Uninstall
 
@@ -68,20 +93,20 @@ installs and never duplicates entries.
 bash ~/.claude/claude-notifier/uninstall.sh
 ```
 
-Removes the app, hook script, and settings entries. `settings.json.bak` is kept
-as a safety net. macOS notification permission stays on — reset it via System
-Settings if you want it gone.
+This removes the app, the hook script and the settings entries. It keeps
+`settings.json.bak`. The macOS notification permission stays until you reset it
+in System Settings.
 
 ## Requirements
 
-- macOS (verified on macOS 26 Tahoe; works on Sonoma+)
-- Homebrew — the installer auto-installs `terminal-notifier` and `jq`
-- Claude desktop optional — without it the bundled `Claude.icns` fallback is used
+- macOS, tested on macOS 26 Tahoe
+- Homebrew. The installer adds `terminal-notifier` and `jq` when they are missing.
+- The Claude desktop app is optional. Without it, the bundled `Claude.icns` supplies the icon.
 
-## Refreshing the fallback icon
+## Refresh the bundled icon
 
-`Claude.icns` is used when Claude desktop is absent. Refresh it from the current
-Claude desktop icon:
+`Claude.icns` is only used when the Claude desktop app is not installed. To
+rebuild it from the current desktop app icon:
 
 ```bash
 bash ~/.claude/claude-notifier/extract-icon.sh
