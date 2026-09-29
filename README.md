@@ -11,8 +11,9 @@ brings back the terminal the session runs in.
 Paste this into Claude Code:
 
 ```text
-Install Claude Notifier for me: run `brew install keyurgovrani/claude-notifier/claude-notifier`,
-then `claude-notifier install`.
+Install Claude Notifier for me with Homebrew:
+`brew tap keyurgovrani/claude-notifier`, `brew trust keyurgovrani/claude-notifier`,
+`brew install claude-notifier`, then `claude-notifier install`.
 The installer sends a "Claude Notifier installed ✓" test notification.
 Ask me whether I saw it. If I did not, walk me through
 System Settings → Notifications → Claude Notifier to turn on Allow Notifications.
@@ -24,12 +25,14 @@ With Homebrew:
 
 ```bash
 brew tap keyurgovrani/claude-notifier
+brew trust keyurgovrani/claude-notifier
 brew install claude-notifier
 claude-notifier install
 ```
 
-Brew cannot write to `~/.claude` or `~/Applications`, so `claude-notifier install`
-does the setup after brew puts the files in place.
+Homebrew only loads formulas from taps you trust, which is why `brew trust` is
+there. Brew cannot write to `~/.claude` or `~/Applications`, so
+`claude-notifier install` does the setup after brew puts the files in place.
 
 With git:
 
