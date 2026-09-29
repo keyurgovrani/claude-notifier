@@ -31,3 +31,13 @@ jobs:
           else
             gh release create "$TAG" claude-notifier.zip --title "$TAG" --generate-notes --latest
           fi
+      # Only a tag push moves the formula, so a manual re-run of an old tag never downgrades brew users.
+      - if: github.event_name == 'push'
+        run: |
+          sha=$(sha256sum claude-notifier.zip | cut -d' ' -f1)
+          git checkout main
+          sed -i -E "s|releases/download/[^/]+/|releases/download/$TAG/|; s|sha256 \"[0-9a-f]+\"|sha256 \"$sha\"|" Formula/claude-notifier.rb
+          git diff --quiet && exit 0
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -am "chore: point the formula at $TAG"
+          git push origin main

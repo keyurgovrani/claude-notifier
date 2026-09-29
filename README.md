@@ -11,9 +11,8 @@ brings back the terminal the session runs in.
 Paste this into Claude Code:
 
 ```text
-Install Claude Notifier for me from https://github.com/keyurgovrani/claude-notifier.
-Clone it into ~/.claude/claude-notifier, or run `git pull` there if it already exists.
-Then run `bash ~/.claude/claude-notifier/install.sh`.
+Install Claude Notifier for me: run `brew install keyurgovrani/claude-notifier/claude-notifier`,
+then `claude-notifier install`.
 The installer sends a "Claude Notifier installed ✓" test notification.
 Ask me whether I saw it. If I did not, walk me through
 System Settings → Notifications → Claude Notifier to turn on Allow Notifications.
@@ -21,15 +20,28 @@ System Settings → Notifications → Claude Notifier to turn on Allow Notificat
 
 ### Or do it yourself
 
+With Homebrew:
+
 ```bash
-git clone https://github.com/keyurgovrani/claude-notifier ~/.claude/claude-notifier
+brew tap keyurgovrani/claude-notifier
+brew install claude-notifier
+claude-notifier install
+```
+
+Brew cannot write to `~/.claude` or `~/Applications`, so `claude-notifier install`
+does the setup after brew puts the files in place.
+
+With git:
+
+```bash
+git clone https://github.com/keyurgovrani/homebrew-claude-notifier ~/.claude/claude-notifier
 bash ~/.claude/claude-notifier/install.sh
 ```
 
-Without git, use the zip from the latest release:
+With the zip from the latest release:
 
 ```bash
-curl -fsSL -o /tmp/claude-notifier.zip https://github.com/keyurgovrani/claude-notifier/releases/latest/download/claude-notifier.zip
+curl -fsSL -o /tmp/claude-notifier.zip https://github.com/keyurgovrani/homebrew-claude-notifier/releases/latest/download/claude-notifier.zip
 unzip -o /tmp/claude-notifier.zip -d ~/.claude && bash ~/.claude/claude-notifier/install.sh
 ```
 
@@ -74,9 +86,11 @@ Edits apply on the next notification with no reinstall. Any file in
 ## Update
 
 ```bash
-git -C ~/.claude/claude-notifier pull
-bash ~/.claude/claude-notifier/install.sh
+brew upgrade claude-notifier && claude-notifier install
 ```
+
+For a git install, run `git -C ~/.claude/claude-notifier pull` and then
+`bash ~/.claude/claude-notifier/install.sh`.
 
 The installer is safe to re-run. It never duplicates settings entries. It also
 replaces `~/.claude/hooks/claude-notify.sh`, so re-apply any sound changes afterwards.
@@ -97,8 +111,10 @@ replaces `~/.claude/hooks/claude-notify.sh`, so re-apply any sound changes after
 ## Uninstall
 
 ```bash
-bash ~/.claude/claude-notifier/uninstall.sh
+claude-notifier uninstall && brew uninstall claude-notifier
 ```
+
+For a git or zip install, run `bash ~/.claude/claude-notifier/uninstall.sh`.
 
 This removes the app, the hook script and the settings entries. It keeps
 `settings.json.bak`. The macOS notification permission stays until you reset it
